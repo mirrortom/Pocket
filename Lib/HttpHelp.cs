@@ -1,6 +1,7 @@
 ﻿using MySqlX.XDevAPI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
@@ -44,7 +45,7 @@ public class HttpHelp
     /// get请求获取字符串类型结果.例如html文档
     /// </summary>
     /// <param name="url">地址</param>
-    /// <param name="headers">headers参数键值对</param>
+    /// <param name="headers">headers参数键值对(只能是自定义的,get请求一般不用设置)</param>
     /// <returns></returns>
     public static async Task<string> GetString(string url, Dictionary<string, string> headers = null)
     {
@@ -55,7 +56,7 @@ public class HttpHelp
     /// get请求,返回一个字节数组
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="headers"></param>
+    /// <param name="headers">headers字段(只能是自定义的,get请求一般不用设置)</param>
     /// <returns></returns>
     public static async Task<byte[]> GetBytes(string url, Dictionary<string, string> headers = null)
     {
@@ -64,19 +65,32 @@ public class HttpHelp
     }
 
     /// <summary>
-    /// post请求,文本参数(例如json格式文本).返回文本结果
+    /// post请求,文本参数,返回文本结果
     /// </summary>
     /// <param name="url"></param>
-    /// <param name="json"></param>
-    /// <param name="headers"></param>
+    /// <param name="text"></param>
+    /// <param name="headers">header(只能是自定义的字段,比如用于验证的auth:xxx)</param>
     /// <returns></returns>
-    public static async Task<string> PostTextString(string url, string json, Dictionary<string, string> headers = null)
+    public static async Task<string> PostTextString(string url, string text, Dictionary<string, string> headers = null)
     {
         AddHeaders(headers);
-        HttpContent content = new StringContent(json);
+        HttpContent content = new StringContent(text);
         return await PostStringResult(url, content);
     }
 
+    /// <summary>
+    /// post请求,json格式参数,content-type:application/json,utf8编码,返回文本结果
+    /// </summary>
+    /// <param name="url"></param>
+    /// <param name="json"></param>
+    /// <param name="headers">(只能是自定义的字段,比如用于验证的auth:xxx)</param>
+    /// <returns></returns>
+    public static async Task<string> PostJsonString(string url, string json, Dictionary<string, string> headers = null)
+    {
+        AddHeaders(headers);
+        HttpContent content = new StringContent(json, Encoding.UTF8, "application/json");
+        return await PostStringResult(url, content);
+    }
 
     /// <summary>
     /// 发送post请求,返回string结果
@@ -91,6 +105,10 @@ public class HttpHelp
         return Encoding.UTF8.GetString(resultBytes);
     }
 
+    /// <summary>
+    /// 在请求头headers里添加一些自定义字段.例如验证auth:xxx
+    /// </summary>
+    /// <param name="headers"></param>
     private static void AddHeaders(Dictionary<string, string> headers)
     {
         if (headers != default)

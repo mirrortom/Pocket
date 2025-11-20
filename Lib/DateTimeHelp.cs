@@ -8,27 +8,30 @@ namespace Lib;
 public class DateTimeHelp
 {
     /// <summary>
-    /// 将时间转为unix时间戳:以格林威治时间1970年01月01日00时00分00秒开始,到该时间的秒数
+    /// 将时间转为unix时间戳:以格林威治时间1970年01月01日00时00分00秒开始,到该时间的秒或者毫秒数
     /// </summary>
     /// <param name="datetime"></param>
     /// <returns></returns>
-    public static long DtToUnixTimeStamp(DateTime datetime = default)
+    public static long DtToUnixTimeStamp(DateTime datetime = default, bool isMiSec = false)
     {
         // datetime可以隐式转为datetimeoffset
         DateTimeOffset dt = datetime == default ?
         DateTimeOffset.Now.LocalDateTime :
         datetime;
-        return dt.ToUnixTimeSeconds();
+        return isMiSec == true ? dt.ToUnixTimeMilliseconds() : dt.ToUnixTimeSeconds();
     }
 
     /// <summary>
-    /// 将unix时间戳(秒单位)转化为本地时区时间.
+    /// 将unix时间戳(秒或者毫秒单位)转化为本地时区时间.
     /// </summary>
     /// <param name="unixTimeStamp"></param>
     /// <returns></returns>
-    public static DateTime UnixTimeStampToLocalDt(long unixTimeStamp)
+    public static DateTime UnixTimeStampToLocalDt(long unixTimeStamp, bool isMiSec = false)
     {
-        DateTimeOffset dto = DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp);
-        return dto.LocalDateTime;
+        if (isMiSec == true)
+        {
+            return DateTimeOffset.FromUnixTimeMilliseconds(unixTimeStamp).LocalDateTime;
+        }
+        return DateTimeOffset.FromUnixTimeSeconds(unixTimeStamp).LocalDateTime;
     }
 }

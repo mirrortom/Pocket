@@ -19,7 +19,7 @@ public static class NLogHelp
     // 4.输出到文件(用于自定义符号测试时,文件夹 TestLog)
     private static Logger logTest;
     // 5.输出到控制台(用于测试调试)
-    private static Logger debug;
+    private static Logger console;
 
     // 日志格式说明-用于文件
     // ${date} 日期,例: 2020/10/03 12:10:01.749
@@ -70,7 +70,6 @@ public static class NLogHelp
                 // 这个要开启,否则性能极差
                 // https://github.com/NLog/NLog/wiki/File-target
                 KeepFileOpen = true,
-                ConcurrentWrites = false,
                 // 中文乱码,在linux上可能
                 Encoding = System.Text.Encoding.UTF8
             };
@@ -92,7 +91,7 @@ public static class NLogHelp
         logDB = LogManager.GetLogger(logType[1]);
         log = LogManager.GetLogger(logType[2]);
         logTest = LogManager.GetLogger(logType[3]);
-        debug = LogManager.GetLogger("Console");
+        console = LogManager.GetLogger("Console");
     }
 
     public static void SrvLog(string msg)
@@ -107,15 +106,20 @@ public static class NLogHelp
     {
         log.Info(msg);
     }
-    public static void Debug(string msg)
+    /// <summary>
+    /// 输出到控制台,测试用
+    /// </summary>
+    /// <param name="msg"></param>
+    public static void Console(string msg)
     {
-        debug.Debug(msg);
+        console.Debug(msg);
     }
-#if TESTLOG
-    // 用于条件编译,可以根据具体项目修改
+    /// <summary>
+    /// 输出到文件,测试用
+    /// </summary>
+    /// <param name="msg"></param>
     public static void TestLog(string msg)
     {
         logTest.Info(msg);
     }
-#endif
 }
